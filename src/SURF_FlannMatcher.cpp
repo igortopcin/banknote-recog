@@ -165,9 +165,9 @@ int main(int argc, char** argv) {
 	vector<KeyPoint> keypoints_1, keypoints_2;
 	Mat descriptors_1, descriptors_2;
 
-	//computeDescriptors(img_1, detector, extractor, keypoints_1, descriptors_1);
+	computeDescriptors(img_1, detector, extractor, keypoints_1, descriptors_1);
 	//saveDescriptors(argv[1] + string(".xml"), keypoints_1, descriptors_1);
-	loadDescriptors(argv[1] + string(".xml"), keypoints_1, descriptors_1);
+	//loadDescriptors(argv[1] + string(".xml"), keypoints_1, descriptors_1);
 	computeDescriptors(img_2, detector, extractor, keypoints_2, descriptors_2);
 
 	//-- Step 2: Matching descriptor vectors using FLANN matcher
