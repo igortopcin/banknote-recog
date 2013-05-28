@@ -47,10 +47,9 @@ Install Eclipse CDT.
 Compiling and Building the Project
 ----------------------------------
 
-First get the source code of this project at https://github.com/igortopcin/banknote-recog
-Then open Eclipse and choose "Import...", then "Import existing project into workspace". Follow the remaining steps and you should have a copy of the project working in your Eclipse.
+First get the source code of this project at https://github.com/igortopcin/banknote-recog. After that, open Eclipse and choose "Import...", then "Import existing project into workspace". Follow the steps in the import wizard and you should have a working copy of the project in your Eclipse.
 
-Performa full build by selecting Project >> "Build All" or "Build Project". This should output all build files in a directory called "Debug". Do the following to run the application:
+Perform a full build by selecting Project >> "Build All" or "Build Project". This should output all build files in a directory called "Debug". Do the following to run the application:
 
     cd Debug
     ./banknote-recog ../img/10_1.jpg ../img/img4.jpg
