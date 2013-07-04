@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">Banknote Recog</string>
+    <string name="imageMatcherTitle">Match</string>
+    <string name="menu_settings">Settings</string>
+
+</resources>
