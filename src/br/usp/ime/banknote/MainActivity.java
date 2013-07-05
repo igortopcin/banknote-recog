@@ -13,7 +13,9 @@ import org.opencv.android.CameraBridgeViewBase.CvCameraViewListener2;
 import org.opencv.android.LoaderCallbackInterface;
 import org.opencv.android.OpenCVLoader;
 import org.opencv.android.Utils;
+import org.opencv.core.CvType;
 import org.opencv.core.Mat;
+import org.opencv.imgproc.Imgproc;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -36,20 +38,21 @@ public class MainActivity extends Activity implements CvCameraViewListener2,
 		if (!OpenCVLoader.initDebug()) {
 			// Handle initialization error
 		} else {
-			System.loadLibrary("AulaDemo");
+			System.loadLibrary("banknote");
 		}
 	}
 
 	private boolean captureFrame = false;
 	private boolean initialized = false;
 	private CameraBridgeViewBase cvCam;
+	private Mat capturedImg;
 
 	BaseLoaderCallback blc = new BaseLoaderCallback(this) {
 		public void onManagerConnected(int status) {
 			switch (status) {
 			case (LoaderCallbackInterface.SUCCESS): {
 				// Load the jni library
-				System.loadLibrary("AulaDemo");
+				System.loadLibrary("banknote");
 				cvCam.enableView();
 				cvCam.setOnTouchListener(MainActivity.this);
 				Log.i(TAG, "Initializing lib");
@@ -110,50 +113,41 @@ public class MainActivity extends Activity implements CvCameraViewListener2,
 
 	@Override
 	public void onCameraViewStarted(int width, int height) {
+		capturedImg = new Mat(height, width, CvType.CV_8UC3);
 	}
 
 	@Override
 	public void onCameraViewStopped() {
+		capturedImg.release();
 	}
 
 	@Override
 	public Mat onCameraFrame(CvCameraViewFrame inputFrame) {
-		Mat img = inputFrame.rgba();
+		capturedImg = inputFrame.rgba();
+		Imgproc.cvtColor(inputFrame.rgba(), capturedImg, Imgproc.COLOR_RGBA2RGB, 3);
+		
 		if (captureFrame) {
-/*			try {
-				Mat dummyImg = Utils.loadResource(this, R.raw.img1);
-				captureFrame(dummyImg);
-			} catch (IOException e) {
-				e.printStackTrace();
-			}*/
-			captureFrame(img);
-		}
-		return img;
-	}
-
-	@Override
-	public boolean onTouch(View view, MotionEvent event) {
-		synchronized (this) {
-			captureFrame = true;
-		}
-		return false;
-	}
-
-	private void captureFrame(Mat img) {
-		Log.i(TAG, "Capturing frame!");
-		synchronized (this) {
 			captureFrame = false;
-			String matchedText = nMatchImage(img.getNativeObjAddr());
+			
+			Log.i(TAG, "Capturing frame!");
+			String matchedText = nMatchImage(capturedImg.getNativeObjAddr());
 
 			// Imgproc.cvtColor(img, result, Imgproc.COLOR_RGB2BGRA);
-			Bitmap bmp = Bitmap.createBitmap(img.cols(), img.rows(), Bitmap.Config.ARGB_8888);
-			Utils.matToBitmap(img, bmp);
+			Bitmap bmp = Bitmap.createBitmap(capturedImg.cols(), capturedImg.rows(), Bitmap.Config.ARGB_8888);
+			Utils.matToBitmap(capturedImg, bmp);
 
 			ImageMatcherActivity.IMAGE = bmp;
 			ImageMatcherActivity.CAPTION = matchedText;
 			Intent i = new Intent(this, ImageMatcherActivity.class);
 			startActivity(i);
 		}
+		return capturedImg;
+	}
+
+	@Override
+	public boolean onTouch(View view, MotionEvent event) {
+		captureFrame = true;
+		return false;
 	}
 
 	private void copyAssets() {

@@ -56,3 +56,13 @@ Perform a full build by selecting Project >> "Build All" or "Build Project". Thi
     
 The "img" folder has some sample images to test the application.
 
+Redirecting C++ stdout to Android's logger
+------------------------------------------
+
+The native part of the Android has some important logs that are written to the stdout and stderr.
+However, Android ignores those and writes them to /dev/null. In order to view them in the 
+Android's logger, you should connect your device in debugger mode and do:
+
+	adb shell stop
+	adb shell setprop log.redirect-stdio true
+	adb shell start

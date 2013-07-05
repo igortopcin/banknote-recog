@@ -11,7 +11,6 @@ using namespace std;
 using namespace cv;
 
 void matchImage(const Mat& queryImage_, string& tag, const bool saveResults=false);
-int extract(const string& dir);
 void initTrainSamples(const string& dir);
 
 int main(int argc, char** argv_) {

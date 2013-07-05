@@ -32,11 +32,15 @@ vector<vector<KeyPoint> > TrainKeypoints;
 vector<Mat> TrainDescriptors;
 vector<string> Tags;
 
-SiftFeatureDetector Detector(MIN_HESSIAN);
+//SiftFeatureDetector Detector(MIN_HESSIAN, 3, 0.04, 10, 1.6);
+OrbFeatureDetector Detector(800);
 //SiftDescriptorExtractor Extractor;
+//Ptr<DescriptorExtractor> Extractor(
+//		new OpponentColorDescriptorExtractor(
+//				Ptr<DescriptorExtractor>(new SiftDescriptorExtractor(MIN_HESSIAN, 3, 0.04, 10, 1.6))));
 Ptr<DescriptorExtractor> Extractor(
 		new OpponentColorDescriptorExtractor(
-				Ptr<DescriptorExtractor>(new SiftDescriptorExtractor())));
+				Ptr<DescriptorExtractor>(new OrbDescriptorExtractor(800))));
 
 void loadFile(const string& filename, vector<KeyPoint>& keypoints, Mat& descriptors, Mat& image, string& tag) {
 	FileStorage fs(filename, FileStorage::READ);
@@ -119,7 +123,9 @@ void initTrainSamples(const string& dir) {
 }
 
 void matchDescriptors(const Mat& queryDescriptors, vector<DMatch>& matches, string& tag) {
-	FlannBasedMatcher descriptorMatcher;
+	//BFMatcher descriptorMatcher(NORM_L2);
+	BFMatcher descriptorMatcher(NORM_HAMMING);
+	//FlannBasedMatcher descriptorMatcher;
 	TickMeter tm;
 
 	tm.start();
@@ -130,7 +136,7 @@ void matchDescriptors(const Mat& queryDescriptors, vector<DMatch>& matches, stri
 	double buildTime = tm.getTimeMilli();
 
 	tm.start();
-	cout << "train descriptors" << endl;
+	cout << "match descriptors" << endl;
 	descriptorMatcher.match(queryDescriptors, matches);
 	CV_Assert(queryDescriptors.rows == (int)matches.size() || matches.empty());
 
@@ -228,92 +234,6 @@ void saveResultImages(const Mat& queryImage,
 		}
 	}
 	cout << ">" << endl;
-}
-
-void extractTrainSamples(const string& dir, const string& trainingFilename, vector<Mat>& trainImages, vector<string>& tags) {
-	cout << "look in train data"<<endl;
-	Ptr<ifstream> ifs(new ifstream(trainingFilename.c_str()));
-
-	char buf[255]; int count = 0;
-	vector<string> lines;
-	while(!ifs->eof()) {
-		ifs->getline(buf, 255);
-		lines.push_back(buf);
-	}
-
-	for(int i=0;i<lines.size();i++) {
-		string filepath;
-		string tag;
-
-		string line(lines[i]);
-		istringstream iss(line);
-
-		iss >> filepath;
-		iss >> tag;
-
-		if (tag.size() == 0) {
-			cout << "train image " << dir << "/" << filepath << " does not have a tag..." << endl;
-			continue;
-		}
-
-		cout << "reading: " << dir << "/" << filepath << endl;
-		Mat img = imread(dir + "/" + filepath, CV_LOAD_IMAGE_COLOR);
-		//Mat img = imread(filepath, CV_LOAD_IMAGE_GRAYSCALE);
-		if (img.empty()) {
-			cout << "train image " << filepath << " cannot be read." << endl;
-		}
-
-		trainImages.push_back(img);
-		tags.push_back(tag);
-	}
-}
-
-void computeSamples(const string& outputDir, const vector<Mat>& trainImages, const vector<string>& tags) {
-	vector<vector<KeyPoint> > trainKeypoints;
-	vector<Mat> trainDescriptors;
-
-	cout << "extracting keypoints from images..." << endl;
-	SiftFeatureDetector detector(MIN_HESSIAN);
-	detector.detect(trainImages, trainKeypoints);
-
-	cout << "computing descriptors for keypoints..." << endl;
-//	SiftDescriptorExtractor extractor;
-//	extractor.compute(trainImages, trainKeypoints, trainDescriptors);
-	Ptr<DescriptorExtractor> extractor(
-			new OpponentColorDescriptorExtractor(
-					Ptr<DescriptorExtractor>(new SiftDescriptorExtractor())));
-	extractor->compute(trainImages, trainKeypoints, trainDescriptors);
-
-	int totalTrainDesc = 0;
-	for (vector<Mat>::const_iterator tdIter = trainDescriptors.begin();
-			tdIter != trainDescriptors.end(); tdIter++)
-		totalTrainDesc += tdIter->rows;
-	cout << "total train descriptors count: " << totalTrainDesc << endl;
-
-	for (int i = 0; i < trainDescriptors.size(); i++) {
-		FileStorage fs(outputDir + "/trained_sample_" + tags[i] + ".yml", FileStorage::WRITE);
-		write(fs, "tag", tags[i]);
-		write(fs, "image", trainImages[i]);
-		write(fs, "keypoints", trainKeypoints[i]);
-		write(fs, "descriptors", trainDescriptors[i]);
-		fs.release();
-	}
-}
-
-int extract(const string& dir) {
-	vector<Mat> trainImages;
-	vector<string> tags;
-
-	cout << "-------- training images -----------" << endl;
-
-	cout << "extract training samples..." << endl;
-	extractTrainSamples(dir, dir+"/classtraining.txt", trainImages, tags);
-	cout << "got " << trainImages.size() << " images." <<endl;
-
-	cout << "computing and saving samples data..." << endl;
-	computeSamples(dir, trainImages, tags);
-
-	return 0;
 }
 
 void matchImage(const Mat& queryImage_, string& tag, const bool saveResults=false) {

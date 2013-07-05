@@ -38,7 +38,7 @@
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
         <activity
-            android:name="br.usp.ime.banknote.MainActivity"
+            android:name="MainActivity"
             android:configChanges="keyboardHidden|orientation"
             android:label="@string/app_name"
             android:screenOrientation="landscape" >
@@ -48,7 +48,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="br.usp.ime.banknote.ImageMatcherActivity"
+            android:name="ImageMatcherActivity"
             android:configChanges="keyboardHidden|orientation"
             android:label="@string/imageMatcherTitle"
             android:screenOrientation="landscape" >

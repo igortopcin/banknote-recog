@@ -8,6 +8,7 @@ import android.view.View;
 import android.view.View.OnTouchListener;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class ImageMatcherActivity extends Activity implements OnTouchListener {
 	
@@ -27,6 +28,7 @@ public class ImageMatcherActivity extends Activity implements OnTouchListener {
 		}
 		textView = (TextView) findViewById(R.id.textView);
 		textView.setText(CAPTION);
+		Toast.makeText(this, CAPTION, Toast.LENGTH_LONG).show();
 	}
 
 	@Override
