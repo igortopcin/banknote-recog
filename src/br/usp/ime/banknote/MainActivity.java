@@ -123,16 +123,14 @@ public class MainActivity extends Activity implements CvCameraViewListener2,
 
 	@Override
 	public Mat onCameraFrame(CvCameraViewFrame inputFrame) {
-		capturedImg = inputFrame.rgba();
-		Imgproc.cvtColor(inputFrame.rgba(), capturedImg, Imgproc.COLOR_RGBA2RGB, 3);
-		
+		Mat rgba = inputFrame.rgba();
 		if (captureFrame) {
 			captureFrame = false;
+			Imgproc.cvtColor(rgba, capturedImg, Imgproc.COLOR_RGBA2BGR, 3);
 			
 			Log.i(TAG, "Capturing frame!");
 			String matchedText = nMatchImage(capturedImg.getNativeObjAddr());
 
-			// Imgproc.cvtColor(img, result, Imgproc.COLOR_RGB2BGRA);
 			Bitmap bmp = Bitmap.createBitmap(capturedImg.cols(), capturedImg.rows(), Bitmap.Config.ARGB_8888);
 			Utils.matToBitmap(capturedImg, bmp);
 
@@ -141,7 +139,7 @@ public class MainActivity extends Activity implements CvCameraViewListener2,
 			Intent i = new Intent(this, ImageMatcherActivity.class);
 			startActivity(i);
 		}
-		return capturedImg;
+		return rgba;
 	}
 
 	@Override
