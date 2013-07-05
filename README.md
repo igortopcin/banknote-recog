@@ -39,22 +39,86 @@ And finally call make to build OpenCV:
     make
     sudo make install
 
+
 Eclipse
 -------
 
-Install Eclipse CDT.
+Get and install Eclipse ADT bundle from http://developer.android.com/sdk/index.html. Simply download and extract it somewhere in your computer.
+The location you unpacked it will be called <adt-bundle> in this guide.
+To start Eclipse, simply run <adt-bundle>/eclipse/eclipse
+
+OpenCV for Android
+------------------
+
+Follow the instructions in this page: http://docs.opencv.org/doc/tutorials/introduction/android_binary_package/O4A_SDK.html
+Read the section "Manual OpenCV4Android SDK setup".
+
+There is also another very good guide: http://docs.opencv.org/doc/tutorials/introduction/android_binary_package/android_dev_intro.html
+
+Basically, you will have to download OpenCV for Android and extract it to <opencv-sdk>.
+Add <opencv-sdk>/sdk/java to your Eclipse's workspace. This is a very important step in the process.
+
+
+NDK
+---
+
+You should download http://developer.android.com/tools/sdk/ndk/index.html
+Unpack it to a directory of your choice <ndk>. Now go to Window->Preferences->Android->NDK and enter the directory <ndk> you chose.
+
+Add the following environment variables to your system: ANDROID_SDK_HOME, ANDROID_NDK_HOME, OPENCV_ANDROID_SDK_HOME. In Linux, it would look something like this:
+
+    export ANDROID_SDK_HOME=<adt-bundle>/sdk
+    export ANDROID_NDK_HOME=<ndk>
+    export OPENCV_ANDROID_SDK_HOME=<opencv-sdk>
+    
+Then you should add $ANDROID_SDK_HOME/tools, $ANDROID_SDK_HOME/platform-tools and $ANDROID_NDK_HOME to your path.
+
+    export PATH=$PATH:$ANDROID_SDK_HOME/tools:$ANDROID_SDK_HOME/platform-tools:$ANDROID_NDK_HOME
+
+
+
 
 Compiling and Building the Project
-----------------------------------
+==================================
 
-First get the source code of this project at https://github.com/igortopcin/banknote-recog. After that, open Eclipse and choose "Import...", then "Import existing project into workspace". Follow the steps in the import wizard and you should have a working copy of the project in your Eclipse.
+First get the source code of this project at https://github.com/igortopcin/banknote-recog.
 
-Perform a full build by selecting Project >> "Build All" or "Build Project". This should output all build files in a directory called "Debug". Do the following to run the application:
+Desktop part
+-------------
 
-    cd Debug
-    ./banknote-recog ../img/10_1.jpg ../img/img4.jpg
+After checking out the code, do the following in a command line prompt:
+
+    cd jni
+    mkdir bin
+    mkdir bin/results
+    cd bin
     
-The "img" folder has some sample images to test the application.
+Use cmake to build the desktop part of the project.
+
+    cmake ../
+    make
+    
+You should now have two executables: match and train
+
+Use train to train the Matcher that will perform the banknote recognition:
+
+    ./train ../../assets
+    
+This will train all the images listed in <project-root>/assets/classtraining.txt. This txt file has the followint format:
+
+    <path-to-image.jpg> <tag associated to that image>
+    
+    
+
+Android part
+------------
+
+Open Eclipse and choose "Import...", then "Import existing project into workspace". Follow the steps in the import wizard and you should have a working copy of the project in your Eclipse.
+The project itself is a pretty standard Eclipse ADT project.
+
+Note that you may have to perform a few adjustments due to difference in the chosen paths of <ndk>, <adt-bundle> and <opencv-sdk>.
+
+Perform a full build by selecting Project >> "Build All" or "Build Project".
 
 Redirecting C++ stdout to Android's logger
 ------------------------------------------
