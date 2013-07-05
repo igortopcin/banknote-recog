@@ -76,8 +76,6 @@ Then you should add $ANDROID_SDK_HOME/tools, $ANDROID_SDK_HOME/platform-tools an
     export PATH=$PATH:$ANDROID_SDK_HOME/tools:$ANDROID_SDK_HOME/platform-tools:$ANDROID_NDK_HOME
 
 
-
-
 Compiling and Building the Project
 ==================================
 
@@ -100,15 +98,27 @@ Use cmake to build the desktop part of the project.
     
 You should now have two executables: match and train
 
-Use train to train the Matcher that will perform the banknote recognition:
+Use "train" to train the Matcher that will perform the banknote recognition:
 
     ./train ../../assets
     
 This will train all the images listed in <project-root>/assets/classtraining.txt. This txt file has the followint format:
 
-    <path-to-image.jpg> <tag associated to that image>
+    <path-to-image-1.jpg> <tag associated to that image-1>
+    <path-to-image-2.jpg> <tag associated to that image-2>
+    ...
+    <path-to-image-N.jpg> <tag associated to that image-N>
     
+All paths are relative to <project-root>/assets.
+
+Executing ./train will produce yml files in <project-root>/assets, which will then be copied to the android .apk by Eclipse ADT.
+
+Now use "match" to try out the algorithm:
+
+    ./match ../../assets ../../img/test/img1.jpg
     
+This will try to match img1.jpg to all the other images listed in <project-root>/assets/classtraining.txt. The program 
+will output some images to the <project-root>/jni/bin/results directory.
 
 Android part
 ------------
@@ -127,6 +137,18 @@ The native part of the Android has some important logs that are written to the s
 However, Android ignores those and writes them to /dev/null. In order to view them in the 
 Android's logger, you should connect your device in debugger mode and do:
 
-	adb shell stop
-	adb shell setprop log.redirect-stdio true
-	adb shell start
+    adb shell stop
+    adb shell setprop log.redirect-stdio true
+    adb shell start
+
+Future Work
+===========
+
+The time to develop this project was quite short, and there has been some difficulties arround making OpenCV Extractors/Detectors/Matchers work in Android.
+The Android app we built is quite simple, and the intent was to show an example of how Android devices can be used to carry out Computer Vision tasks.
+
+Known Issues
+============
+
+Sometimes the matching algorithms produce different results in different computers, even using the same set of training and test/query images.
+This issue remains unresolved, and in some Android devices the results can be different from others.
